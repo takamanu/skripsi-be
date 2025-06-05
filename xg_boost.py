@@ -114,5 +114,5 @@ def process(filepath):
         result7,     # df_SMOTE
         result8,     # df_SMOTETomek
         result9,     # Placeholder
-        result10     # Data after imputation and outlier removal
+        df_pima     # Data after imputation and outlier removal
     )

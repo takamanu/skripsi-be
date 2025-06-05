@@ -32,7 +32,7 @@ def start_process():
 
     return jsonify({
         "result1": result1.to_dict(),  # OR .values.tolist()
-        "datasetBefore": data.values.tolist(),
+        "datasetBefore": result1.values.tolist(),
         "dataLabelEncode": result2.to_dict(),
         "accXGBoost": result4,
         "accXGBoostAndSmote": result3,
@@ -40,7 +40,7 @@ def start_process():
         "df_Smote": result7.to_dict(),
         "df_Adasyn": result8.to_dict(),
         "df_SvmSmote": result9,
-        "dataCleaning": result10
+        "datasetAfter": result10.values.tolist()
     })
 
 @app.route("/images/<filename>", methods=["GET"])
