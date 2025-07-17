@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify, flash, redirect, send_file
 import mimetypes
+from xg_boost import predict_diabetes
+
 from xg_boost import process
 from flask_cors import CORS
 import os
@@ -56,4 +58,31 @@ def get_image(filename):
     
     # Mengembalikan file dengan tipe konten yang benar
     return send_file(file_path, mimetype=content_type)
+
+
+
+@app.route("/predict", methods=["POST"])
+def predict():
+    try:
+        # Ambil JSON dari request body
+        input_data = request.get_json()
+
+        if not input_data:
+            return jsonify({"error": "Request body kosong atau bukan JSON"}), 400
+
+        # Jalankan prediksi
+        prediction = predict_diabetes(input_data)
+
+        return jsonify({
+            "input": input_data,
+            "prediction": prediction,
+            "description": "1 = Diabetes, 0 = Tidak Diabetes"
+        })
+
+    except ValueError as ve:
+        return jsonify({"error": str(ve)}), 400
+    except FileNotFoundError as fe:
+        return jsonify({"error": str(fe)}), 500
+    except Exception as e:
+        return jsonify({"error": f"Internal server error: {str(e)}"}), 500
 
