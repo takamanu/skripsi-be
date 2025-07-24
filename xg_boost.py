@@ -11,10 +11,14 @@ from sklearn import metrics
 
 from imblearn.over_sampling import SMOTE
 from imblearn.combine import SMOTETomek
+import os
+from joblib import dump
+from joblib import load
 
 import xgboost as xgb
 
 def process(filepath):
+    
     # 1. Load dataset
     data = pd.read_csv(filepath)
     result1 = data.copy()  # Original dataset
@@ -104,6 +108,11 @@ def process(filepath):
     result6 = None
     result9 = None
     result10 = None
+    
+    # ======= SIMPAN MODEL & IMPUTER ==========
+    os.makedirs("model", exist_ok=True)
+    dump(clf, "model/xgboost_smotetomek_model.joblib")
+    dump(imputer, "model/iterative_imputer.joblib")
 
     return (
         result1,     # Original dataset
@@ -116,3 +125,27 @@ def process(filepath):
         result9,     # Placeholder
         df_pima     # Data after imputation and outlier removal
     )
+    
+
+
+def predict_diabetes(input_data: dict):
+    # Load model
+    model_path = "model/xgboost_smotetomek_model.joblib"
+    if not os.path.exists(model_path):
+        raise FileNotFoundError("Model tidak ditemukan")
+
+    model = load(model_path)
+
+    # Validasi kolom wajib
+    required_fields = [
+        "Pregnancies", "Glucose", "BloodPressure", "SkinThickness",
+        "Insulin", "BMI", "DiabetesPedigreeFunction", "Age"
+    ]
+    for field in required_fields:
+        if field not in input_data:
+            raise ValueError(f"Field '{field}' wajib diisi")
+
+    df_input = pd.DataFrame([input_data])
+    prediction = model.predict(df_input)
+
+    return int(prediction[0])
